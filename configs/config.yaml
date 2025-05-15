@@ -1,0 +1,57 @@
+app:
+  name: "data-loader"
+  version: "1.0.0"
+  env: "development" # production, staging
+
+batch_size: 2000
+max_concurrency: 4
+
+logger:
+  level: "DEBUG"
+  file_path: "./logs/data-loader.log"
+  caller: true
+  time_format: "2006-01-02T15:04:05Z07:00"
+  max_size_mb: 100
+  max_backups: 3
+  max_age_days: 30
+
+db:
+  dsn: "host=localhost port=5432 user=test password=123456 dbname=app_db sslmode=disable"
+  max_idle_conns: 5
+  max_open_conns: 20
+  conn_max_lifetime: "1h"
+  disable_indexes: true
+  recreate_indexes: true
+  migrate: true
+
+file_processing:
+  paths:
+    user_file: "/media/alexperezortuno/Workspace/Projects/Go/go-batch/large_users.csv"
+  type: "csv" # csv, xlsx
+  column_mapping: { }
+  delimiter: ","
+  encoding: "utf-8"
+  header: false
+  skip_rows: 0
+  sheet_name: ""
+  sheet_index: 0
+  row_limit: 0
+  column_limit: 0
+  batch_size: 0
+  batch_timeout: 0s
+  batch_delay: 0s
+  batch_retries: 0
+  batch_retry_delay: 0s
+  batch_retry_max_delay: 0s
+  batch_retry_max_attempts: 0
+
+backup:
+  enabled: true
+  dir: "./backups"
+  prefix: "data_loader_backup"
+  keep_last: 5
+
+metrics:
+  enabled: true
+  port: 2112
+  path: "/metrics"
