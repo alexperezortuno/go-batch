@@ -3,7 +3,7 @@ app:
   version: "1.0.0"
   env: "development" # production, staging
 
-batch_size: 2000
+batch_size: 1000
 max_concurrency: 4
 
 logger:
