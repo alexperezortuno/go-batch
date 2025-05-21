@@ -9,6 +9,6 @@ type LoaderService struct {
 	Repo *repository.LoaderRepo
 }
 
-func (s *LoaderService) InsertUserBatch(users []domain.User) error {
-	return s.Repo.BulkUserInsert(users)
+func (s *LoaderService) InsertUsers(users []domain.User, batchSize int) error {
+	return s.Repo.BulkInsert(users, batchSize)
 }

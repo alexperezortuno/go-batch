@@ -8,6 +8,7 @@ import (
 	"github.com/alexperezortuno/go-batch/internal/repository"
 	"github.com/alexperezortuno/go-batch/internal/service"
 	"github.com/alexperezortuno/go-batch/internal/utils/logger"
+	"github.com/go-playground/validator/v10"
 	"os"
 	"strconv"
 )
@@ -30,6 +31,7 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 	svc := &service.LoaderService{Repo: repo}
 
 	var batch []domain.User
+	var validate = validator.New()
 	batchSize := cfg.FileProcessing.BatchSize
 
 	for _, record := range records {
@@ -38,26 +40,25 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 			cfg.FileProcessing.HasHeader = false
 			continue
 		}
+
 		age, _ := strconv.Atoi(record[2])
 		user := domain.User{
 			Name:  record[0],
 			Email: record[1],
 			Age:   age,
 		}
-		batch = append(batch, user)
 
-		if len(batch) >= batchSize {
-			if err := svc.InsertUserBatch(batch); err != nil {
-				return err
-			}
-			batch = []domain.User{}
+		// Validate the user
+		err := validate.Struct(user)
+		if err != nil {
+			logger.Error("Validation error with value %v", err, user)
+			continue
 		}
+
+		batch = append(batch, user)
 	}
 
-	if len(batch) > 0 {
-		return svc.InsertUserBatch(batch)
-	}
-	return nil
+	return svc.InsertUsers(batch, batchSize)
 }
 
 // readCSVToMemory reads an entire CSV file into memory and returns the records as a slice of slices of strings.
