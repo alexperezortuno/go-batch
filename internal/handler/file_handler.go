@@ -41,11 +41,13 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 			continue
 		}
 
-		age, _ := strconv.Atoi(record[2])
+		age, _ := strconv.Atoi(record[4])
 		user := domain.User{
-			Name:  record[0],
-			Email: record[1],
-			Age:   age,
+			Username: record[0],
+			Password: record[1],
+			Email:    record[2],
+			Name:     record[3],
+			Age:      age,
 		}
 
 		// Validate the user
