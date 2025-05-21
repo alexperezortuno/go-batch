@@ -44,6 +44,7 @@ file_processing:
   batch_retry_delay: 0s
   batch_retry_max_delay: 0s
   batch_retry_max_attempts: 0
+  has_header: true
 
 backup:
   enabled: true
