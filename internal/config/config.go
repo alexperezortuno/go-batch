@@ -44,7 +44,6 @@ type FileConfig struct {
 	BatchRetryDelay       time.Duration     `yaml:"batch_retry_delay"`
 	BatchRetryMaxDelay    time.Duration     `yaml:"batch_retry_max_delay"`
 	BatchRetryMaxAttempts int               `yaml:"batch_retry_max_attempts"`
-	HasHeader             bool              `yaml:"has_header"`
 }
 
 type LoggerConfig struct {

@@ -31,20 +31,19 @@ file_processing:
   column_mapping: { }
   delimiter: ","
   encoding: "utf-8"
-  header: false
+  header: true
   skip_rows: 0
   sheet_name: ""
   sheet_index: 0
   row_limit: 0
   column_limit: 0
-  batch_size: 0
+  batch_size: 1000
   batch_timeout: 0s
   batch_delay: 0s
   batch_retries: 0
   batch_retry_delay: 0s
   batch_retry_max_delay: 0s
   batch_retry_max_attempts: 0
-  has_header: true
 
 backup:
   enabled: true

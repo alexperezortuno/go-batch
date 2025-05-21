@@ -35,9 +35,9 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 	batchSize := cfg.FileProcessing.BatchSize
 
 	for _, record := range records {
-		if cfg.FileProcessing.HasHeader {
+		if cfg.FileProcessing.Header {
 			// Skip the first line if it is a header
-			cfg.FileProcessing.HasHeader = false
+			cfg.FileProcessing.Header = false
 			continue
 		}
 

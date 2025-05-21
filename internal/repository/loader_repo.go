@@ -9,18 +9,23 @@ type LoaderRepo struct {
 	DB *gorm.DB
 }
 
-func (r *LoaderRepo) BulkUserInsert(users []domain.User) error {
-	return r.DB.Create(&users).Error
-}
-
 func (r *LoaderRepo) BulkInsert(users []domain.User, batchSize int) error {
+	if len(users) == 0 {
+		return nil // Nada que insertar
+	}
+
 	for i := 0; i < len(users); i += batchSize {
 		end := i + batchSize
 		if end > len(users) {
 			end = len(users)
 		}
 
-		if err := r.DB.Create(users[i:end]).Error; err != nil {
+		batch := users[i:end]
+		if len(batch) == 0 {
+			continue
+		}
+
+		if err := r.DB.Create(&batch).Error; err != nil {
 			return err
 		}
 	}
