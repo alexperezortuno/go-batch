@@ -1,13 +1,7 @@
-CREATE TABLE IF NOT EXISTS users
-(
-    id         SERIAL PRIMARY KEY,
-    username   VARCHAR(50)  NOT NULL UNIQUE,
-    password   VARCHAR(255) NOT NULL,
-    email      VARCHAR(100) NOT NULL UNIQUE,
-    name       VARCHAR(100) NOT NULL,
-    age        INT CHECK (age >= 0),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+--- Create user
+create user test1
+    with encrypted password '123456';
 
-ALTER TABLE users ADD CONSTRAINT uni_users_email UNIQUE (email);
+-- Grant privileges
+grant all privileges on database app_db to test1;
+

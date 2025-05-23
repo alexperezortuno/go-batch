@@ -1,0 +1,2 @@
+\c app_db
+CREATE SCHEMA IF NOT EXISTS batch AUTHORIZATION test;

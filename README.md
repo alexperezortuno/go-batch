@@ -50,3 +50,10 @@ build
 ```bash
 go build -o dist/go_batch cmd/loader/main.go
 ```
+
+
+### Build image
+
+```bash
+docker build --no-cache --progress=plain --build-arg DB=app_db --build-arg DB_USER=test --build-arg DB_PASSWORD=123456 -t postgres:cust .
+```

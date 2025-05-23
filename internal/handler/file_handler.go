@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/alexperezortuno/go-batch/internal/config"
 	"github.com/alexperezortuno/go-batch/internal/domain"
+	"github.com/alexperezortuno/go-batch/internal/metrics"
 	"github.com/alexperezortuno/go-batch/internal/repository"
 	"github.com/alexperezortuno/go-batch/internal/service"
 	"github.com/alexperezortuno/go-batch/internal/utils/logger"
@@ -21,7 +22,7 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 	}
 
 	// read the file an load it into memory
-	records, err := readCSVToMemory(cfg.FileProcessing.Paths.UserFile, logger)
+	records, err := readCSVToMemory(cfg, logger)
 	if err != nil {
 		logger.Error("Error reading file", err)
 		return err
@@ -57,6 +58,10 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 			continue
 		}
 
+		if cfg.Metrics.Enabled {
+			metrics.RecordsInserted.Inc()
+		}
+
 		batch = append(batch, user)
 	}
 
@@ -64,7 +69,8 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 }
 
 // readCSVToMemory reads an entire CSV file into memory and returns the records as a slice of slices of strings.
-func readCSVToMemory(filePath string, logger *logger.Logger) ([][]string, error) {
+func readCSVToMemory(cfg config.Config, logger *logger.Logger) ([][]string, error) {
+	filePath := cfg.FileProcessing.Paths.UserFile
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("error al abrir el archivo: %w", err)
@@ -80,6 +86,10 @@ func readCSVToMemory(filePath string, logger *logger.Logger) ([][]string, error)
 	records, err := reader.ReadAll()
 	if err != nil {
 		return nil, fmt.Errorf("error al leer el archivo CSV: %w", err)
+	}
+
+	if cfg.Metrics.Enabled {
+		metrics.RecordsProcessed.Inc()
 	}
 
 	return records, nil
