@@ -10,5 +10,5 @@ type LoaderService struct {
 }
 
 func (s *LoaderService) InsertUsers(users []domain.User, batchSize int) error {
-	return s.Repo.BulkInsert(users, batchSize)
+	return s.Repo.BulkUserInsert(users, batchSize)
 }

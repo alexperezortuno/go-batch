@@ -9,7 +9,7 @@ type LoaderRepo struct {
 	DB *gorm.DB
 }
 
-func (r *LoaderRepo) BulkInsert(users []domain.User, batchSize int) error {
+func (r *LoaderRepo) BulkUserInsert(users []domain.User, batchSize int) error {
 	if len(users) == 0 {
 		return nil // Nada que insertar
 	}
