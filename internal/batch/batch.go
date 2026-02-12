@@ -33,3 +33,12 @@ func New[T any](opts ...Option) *Batcher[T] {
 func (b *Batcher[T]) Submit(item T) {
 	b.in <- item
 }
+
+func (b *Batcher[T]) TrySubmit(item T) bool {
+	select {
+	case b.in <- item:
+		return true
+	default:
+		return false
+	}
+}
