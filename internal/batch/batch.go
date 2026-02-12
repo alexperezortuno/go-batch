@@ -83,8 +83,6 @@ func (b *Batcher[T]) Start(
 			for _, r := range ready {
 				if r.err != nil {
 					log.Printf("batch seq=%d failed: %v", r.seq, r.err)
-				} else {
-					log.Printf("batch seq=%d processed", r.seq)
 				}
 			}
 		}
