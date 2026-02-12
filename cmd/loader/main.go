@@ -18,13 +18,13 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Inicializar métricas
+	// Initialize metrics
 	if cfg != nil {
 		if cfg.Metrics.Enabled {
 			metrics.InitMetrics()
 		}
 
-		// Inicializar logger
+		// Initialize logger
 		appLogger := logger.NewLogger(*cfg)
 		defer func(appLogger *logger.Logger) {
 			err := appLogger.Close()
@@ -33,11 +33,11 @@ func main() {
 			}
 		}(appLogger)
 
-		// Contexto con cancelación
+		// Context with cancel
 		_, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		// Inicializar servicio
+		// Initialize service
 		appLogger.Info("Starting application")
 
 		pool, err := repository.NewPgxPool(cfg)
