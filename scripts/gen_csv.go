@@ -52,7 +52,7 @@ func main() {
 		return
 	}
 
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 2000000; i++ {
 		username := fmt.Sprintf("user%d", i)
 		password, err := generateRandomString(32)
 		if err != nil {
