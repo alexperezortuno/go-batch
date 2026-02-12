@@ -12,6 +12,10 @@ func (r *Database) InsertBatchHeavy(
 	ctx context.Context,
 	users []domain.User,
 ) error {
+	if len(users) == 0 {
+		return nil
+	}
+
 	if r.Pool == nil {
 		return errors.New("pgx pool not initialized")
 	}
@@ -34,6 +38,14 @@ func (r *Database) InsertBatchHeavy(
 		[]string{"username", "password", "email", "name", "age"},
 		pgx.CopyFromRows(rows),
 	)
+
+	if err == nil {
+		return nil
+	}
+
+	if IsUniqueViolation(err) {
+		return r.insertWithConflict(ctx, users)
+	}
 
 	return err
 }
