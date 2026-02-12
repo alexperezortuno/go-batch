@@ -38,7 +38,7 @@ func retry(
 			return err
 		}
 
-		// último intento → salir
+		// last intent → out
 		if attempt == maxAttempts {
 			break
 		}
