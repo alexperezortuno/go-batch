@@ -21,6 +21,7 @@ func (s *LoaderService) ProcessUsers(users []domain.User, batchSize int) error {
 		batch.WithSize(batchSize),
 		batch.WithTimeout(2*time.Second),
 		batch.WithConcurrency(4),
+		batch.WithRetry(3, 100*time.Second),
 	)
 
 	// Aquí defines qué hacer con cada batch
