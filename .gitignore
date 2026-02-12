@@ -29,3 +29,4 @@ go.sum
 *.csv
 *.log
 dist/*
+configs/config.yaml
