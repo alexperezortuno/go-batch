@@ -82,7 +82,14 @@ func (b *Batcher[T]) runWorkers(
 
 			for batch := range batches {
 
-				err := b.processor(ctx, batch.items)
+				err := retry(
+					ctx,
+					b.cfg.MaxRetries,
+					b.cfg.Backoff,
+					func() error {
+						return b.processor(ctx, batch.items)
+					},
+				)
 
 				results <- batchResult{
 					seq: batch.seq,
@@ -92,10 +99,7 @@ func (b *Batcher[T]) runWorkers(
 		}()
 	}
 
-	// Esperamos que todos los workers terminen
 	wg.Wait()
-
-	// Cerramos results cuando ya no habrá más resultados
 	close(results)
 }
 
