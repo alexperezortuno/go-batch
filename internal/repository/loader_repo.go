@@ -1,33 +1,39 @@
 package repository
 
 import (
+	"context"
+	"errors"
+
 	"github.com/alexperezortuno/go-batch/internal/domain"
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5"
 )
 
-type LoaderRepo struct {
-	DB *gorm.DB
-}
-
-func (r *LoaderRepo) BulkUserInsert(users []domain.User, batchSize int) error {
-	if len(users) == 0 {
-		return nil // Nada que insertar
+func (r *Database) InsertBatchHeavy(
+	ctx context.Context,
+	users []domain.User,
+) error {
+	if r.Pool == nil {
+		return errors.New("pgx pool not initialized")
 	}
 
-	for i := 0; i < len(users); i += batchSize {
-		end := i + batchSize
-		if end > len(users) {
-			end = len(users)
-		}
+	rows := make([][]interface{}, 0, len(users))
 
-		batch := users[i:end]
-		if len(batch) == 0 {
-			continue
-		}
-
-		if err := r.DB.Create(&batch).Error; err != nil {
-			return err
-		}
+	for _, u := range users {
+		rows = append(rows, []interface{}{
+			u.Username,
+			u.Password,
+			u.Email,
+			u.Name,
+			u.Age,
+		})
 	}
-	return nil
+
+	_, err := r.Pool.CopyFrom(
+		ctx,
+		pgx.Identifier{"users"},
+		[]string{"username", "password", "email", "name", "age"},
+		pgx.CopyFromRows(rows),
+	)
+
+	return err
 }

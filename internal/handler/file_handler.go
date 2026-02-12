@@ -3,6 +3,9 @@ package handler
 import (
 	"encoding/csv"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/alexperezortuno/go-batch/internal/config"
 	"github.com/alexperezortuno/go-batch/internal/domain"
 	"github.com/alexperezortuno/go-batch/internal/metrics"
@@ -10,11 +13,10 @@ import (
 	"github.com/alexperezortuno/go-batch/internal/service"
 	"github.com/alexperezortuno/go-batch/internal/utils/logger"
 	"github.com/go-playground/validator/v10"
-	"os"
-	"strconv"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.Logger) error {
+func ProcessUserCSV(cfg config.Config, db *pgxpool.Pool, logger *logger.Logger) error {
 	// Check if the file exists
 	if _, err := os.Stat(cfg.FileProcessing.Paths.UserFile); os.IsNotExist(err) {
 		logger.Error("File does not exist", err)
@@ -28,7 +30,7 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 		return err
 	}
 
-	repo := &repository.LoaderRepo{DB: db.Db}
+	repo := &repository.Database{Pool: db}
 	svc := &service.LoaderService{Repo: repo}
 
 	var batch []domain.User
@@ -65,7 +67,8 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 		batch = append(batch, user)
 	}
 
-	return svc.InsertUsers(batch, batchSize)
+	//return svc.InsertUsers(batch, batchSize)
+	return svc.ProcessUsers(batch, batchSize)
 }
 
 // readCSVToMemory reads an entire CSV file into memory and returns the records as a slice of slices of strings.

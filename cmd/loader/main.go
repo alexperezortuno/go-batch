@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"log"
+
 	"github.com/alexperezortuno/go-batch/internal/config"
 	"github.com/alexperezortuno/go-batch/internal/handler"
 	"github.com/alexperezortuno/go-batch/internal/metrics"
 	"github.com/alexperezortuno/go-batch/internal/repository"
 	"github.com/alexperezortuno/go-batch/internal/utils/logger"
-	"log"
 )
 
 func main() {
@@ -38,10 +39,15 @@ func main() {
 
 		// Inicializar servicio
 		appLogger.Info("Starting application")
-		db, err := repository.NewDatabase(cfg)
+		//db, err := repository.NewDatabase(cfg)
+		//if err != nil {
+		//	appLogger.Error("Failed to connect to database", err)
+		//	return
+		//}
+
+		db, err := repository.NewPgxPool(cfg)
 		if err != nil {
-			appLogger.Error("Failed to connect to database", err)
-			return
+			log.Fatal(err)
 		}
 
 		err = handler.ProcessUserCSV(*cfg, db, appLogger)

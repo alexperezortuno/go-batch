@@ -22,11 +22,11 @@ db:
   conn_max_lifetime: "1h"
   disable_indexes: true
   recreate_indexes: true
-  migrate: true
+  migrate: false # If true, runs migrations on startup
 
 file_processing:
   paths:
-    user_file: "/media/alexperezortuno/Workspace/Projects/Go/go-batch/large_users.csv"
+    user_file: "/path/to/large_users.csv"
   type: "csv" # csv, xlsx
   column_mapping: { }
   delimiter: ","
