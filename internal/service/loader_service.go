@@ -26,13 +26,12 @@ func (s *LoaderService) ProcessUsers(users []domain.User, batchSize int) error {
 	// Aquí defines qué hacer con cada batch
 	b.Start(ctx, func(ctx context.Context, items []domain.User) error {
 		// Aquí llamas a tu repositorio
-		//return s.Repo.InsertBatch(ctx, items, batchSize)
 		return s.Repo.InsertBatchHeavy(ctx, items)
 	})
 
 	// En vez de insertar uno por uno:
 	for _, user := range users {
-		b.Submit(user)
+		b.TrySubmit(user)
 	}
 
 	return nil
