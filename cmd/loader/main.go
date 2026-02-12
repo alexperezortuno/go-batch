@@ -39,18 +39,23 @@ func main() {
 
 		// Inicializar servicio
 		appLogger.Info("Starting application")
-		//db, err := repository.NewDatabase(cfg)
-		//if err != nil {
-		//	appLogger.Error("Failed to connect to database", err)
-		//	return
-		//}
 
-		db, err := repository.NewPgxPool(cfg)
+		pool, err := repository.NewPgxPool(cfg)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		err = handler.ProcessUserCSV(*cfg, db, appLogger)
+		db, err := repository.NewDatabase(cfg)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		dbInstance := &repository.Database{
+			Db:   db.Db,
+			Pool: pool,
+		}
+
+		err = handler.ProcessUserCSV(*cfg, dbInstance, appLogger)
 
 		if err != nil {
 			appLogger.Error("Error processing CSV file", err)
