@@ -20,23 +20,13 @@ func (r *Database) InsertBatchHeavy(
 		return errors.New("pgx pool not initialized")
 	}
 
-	rows := make([][]interface{}, 0, len(users))
-
-	for _, u := range users {
-		rows = append(rows, []interface{}{
-			u.Username,
-			u.Password,
-			u.Email,
-			u.Name,
-			u.Age,
-		})
-	}
+	src := newUserCopySource(users)
 
 	_, err := r.Pool.CopyFrom(
 		ctx,
 		pgx.Identifier{"users"},
 		[]string{"username", "password", "email", "name", "age"},
-		pgx.CopyFromRows(rows),
+		src,
 	)
 
 	if err == nil {
