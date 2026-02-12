@@ -28,11 +28,48 @@ func (s *LoaderService) ProcessUsers(users []domain.User, batchSize int) error {
 		// Aquí llamas a tu repositorio
 		return s.Repo.InsertBatchHeavy(ctx, items)
 	})
+	defer b.Stop()
 
 	// En vez de insertar uno por uno:
 	for _, user := range users {
-		b.TrySubmit(user)
+		err := b.Submit(user)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
+
+//func (s *LoaderService) ProcessFile(reader io.Reader) error {
+//
+//	ctx := context.Background()
+//
+//	b := batch.New[model.User](
+//		batch.WithSize(1000),
+//		batch.WithConcurrency(4),
+//	)
+//
+//	b.Start(ctx, func(ctx context.Context, items []model.User) error {
+//		return s.repo.InsertBatchHeavy(ctx, items)
+//	})
+//	defer b.Stop()
+//
+//	scanner := csv.NewReader(reader)
+//
+//	for {
+//		record, err := scanner.Read()
+//		if err == io.EOF {
+//			break
+//		}
+//
+//		user := parse(record)
+//
+//		if err := b.Submit(user); err != nil {
+//			return err
+//		}
+//	}
+//
+//	return nil
+//
+//}

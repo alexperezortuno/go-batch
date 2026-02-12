@@ -6,47 +6,50 @@ import (
 	"time"
 )
 
-func (b *Batcher[T]) Start(
-	ctx context.Context,
-	processor Processor[T],
-) {
-	b.processor = processor
-
-	batches := make(chan []T, b.cfg.Concurrency)
-
-	go b.runBatcher(ctx, batches)
-	go b.runWorkers(ctx, batches)
-}
-
 func (b *Batcher[T]) runBatcher(
 	ctx context.Context,
-	out chan []T,
+	out chan batchWithSeq[T],
 ) {
-	var ticker *time.Ticker
+	defer close(out)
 
+	var ticker *time.Ticker
 	if b.cfg.Timeout > 0 {
 		ticker = time.NewTicker(b.cfg.Timeout)
 		defer ticker.Stop()
 	}
 
 	batch := make([]T, 0, b.cfg.Size)
+	var seq int64
 
 	flush := func() {
-		if len(batch) > 0 {
-			out <- batch
-			batch = make([]T, 0, b.cfg.Size)
+		if len(batch) == 0 {
+			return
 		}
+
+		seq++
+
+		out <- batchWithSeq[T]{
+			seq:   seq,
+			items: batch,
+		}
+
+		batch = make([]T, 0, b.cfg.Size)
 	}
 
 	for {
 		select {
 		case <-ctx.Done():
 			flush()
-			close(out)
 			return
 
-		case item := <-b.in:
+		case item, ok := <-b.in:
+			if !ok {
+				flush()
+				return
+			}
+
 			batch = append(batch, item)
+
 			if len(batch) >= b.cfg.Size {
 				flush()
 			}
@@ -66,7 +69,8 @@ func tickerChan(t *time.Ticker) <-chan time.Time {
 
 func (b *Batcher[T]) runWorkers(
 	ctx context.Context,
-	in chan []T,
+	batches chan batchWithSeq[T],
+	results chan batchResult,
 ) {
 	var wg sync.WaitGroup
 
@@ -75,11 +79,29 @@ func (b *Batcher[T]) runWorkers(
 
 		go func() {
 			defer wg.Done()
-			for batch := range in {
-				_ = b.processor(ctx, batch)
+
+			for batch := range batches {
+
+				err := b.processor(ctx, batch.items)
+
+				results <- batchResult{
+					seq: batch.seq,
+					err: err,
+				}
 			}
 		}()
 	}
 
+	// Esperamos que todos los workers terminen
 	wg.Wait()
+
+	// Cerramos results cuando ya no habrá más resultados
+	close(results)
+}
+
+func (b *Batcher[T]) waitWorkersAndClose(
+	results chan batchResult,
+) {
+	b.wg.Wait()
+	close(results)
 }
