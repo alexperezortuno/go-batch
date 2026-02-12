@@ -8,6 +8,9 @@ type Config struct {
 	Concurrency int
 	Ordered     bool
 	Buffer      int
+
+	MaxRetries int
+	Backoff    time.Duration
 }
 
 type Option func(*Config)
@@ -33,5 +36,12 @@ func WithConcurrency(n int) Option {
 func WithOrdered() Option {
 	return func(c *Config) {
 		c.Ordered = true
+	}
+}
+
+func WithRetry(maxRetries int, backoff time.Duration) Option {
+	return func(c *Config) {
+		c.MaxRetries = maxRetries
+		c.Backoff = backoff
 	}
 }
