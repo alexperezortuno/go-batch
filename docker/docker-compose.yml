@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: db_go_batch
-    image: postgres:cust
+    image: postgres:16-alpine
     environment:
       POSTGRES_USER: ${DB_USER:-test}
       POSTGRES_PASSWORD: ${DB_PASS:-123456}  # Usa variable de entorno

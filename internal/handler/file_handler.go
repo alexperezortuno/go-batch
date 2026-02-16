@@ -3,6 +3,11 @@ package handler
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"time"
+
 	"github.com/alexperezortuno/go-batch/internal/config"
 	"github.com/alexperezortuno/go-batch/internal/domain"
 	"github.com/alexperezortuno/go-batch/internal/metrics"
@@ -10,8 +15,6 @@ import (
 	"github.com/alexperezortuno/go-batch/internal/service"
 	"github.com/alexperezortuno/go-batch/internal/utils/logger"
 	"github.com/go-playground/validator/v10"
-	"os"
-	"strconv"
 )
 
 func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.Logger) error {
@@ -28,7 +31,7 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 		return err
 	}
 
-	repo := &repository.LoaderRepo{DB: db.Db}
+	repo := &repository.Database{Db: db.Db, Pool: db.Pool}
 	svc := &service.LoaderService{Repo: repo}
 
 	var batch []domain.User
@@ -65,7 +68,14 @@ func ProcessUserCSV(cfg config.Config, db *repository.Database, logger *logger.L
 		batch = append(batch, user)
 	}
 
-	return svc.InsertUsers(batch, batchSize)
+	start := time.Now()
+
+	r := svc.ProcessUsers(batch, batchSize)
+
+	duration := time.Since(start)
+	log.Printf("batch size=%d duration=%s err=%v", len(batch), duration, err)
+
+	return r
 }
 
 // readCSVToMemory reads an entire CSV file into memory and returns the records as a slice of slices of strings.
