@@ -20,9 +20,9 @@ db:
   max_idle_conns: 5
   max_open_conns: 20
   conn_max_lifetime: "1h"
-  disable_indexes: true
-  recreate_indexes: true
-  migrate: false # If true, runs migrations on startup
+  disable_indexes: false
+  recreate_indexes: false
+  migrate: false
 
 file_processing:
   paths:

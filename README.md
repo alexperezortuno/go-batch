@@ -57,3 +57,18 @@ go build -o dist/go_batch cmd/loader/main.go
 ```bash
 docker build --no-cache --progress=plain --build-arg DB=app_db --build-arg DB_USER=test --build-arg DB_PASSWORD=123456 -t postgres:cust .
 ```
+
+## Go commands
+
+update dependencies
+
+```bash
+go get -u all
+```
+
+install dependencies
+
+```bash
+go mod tidy
+```
+
